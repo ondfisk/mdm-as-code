@@ -1,0 +1,13 @@
+variables:
+  environment: Test
+  azureSubscription: 365TEST
+  tenantName: M365x076726.onmicrosoft.com
+  tenantId: b4b2e768-96e6-4313-b156-15dfc489b860
+  subscriptionId: 76265442-5ab7-4d92-b69d-41cb113f82cb
+  clientId: 711bbd96-46a3-43cb-95ee-34866a7d1fc3
+  serviceConnectionObjectId: e2f11d7f-9ddd-40a8-8cbe-939a123122eb
+  keyVaultAdminsObjectId: c14592eb-d2cc-43b3-b173-9ca7de0787d0
+  location: West Europe
+  resourceGroupName: mdm-as-code-test
+  logAnalyticsWorkspaceName: mdm-as-code-test
+  keyVaultName: mdm-as-code-test

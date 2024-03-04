@@ -1,0 +1,75 @@
+{
+    "type": "array",
+    "items": [
+        {
+            "type": "object",
+            "properties": {
+                "configuration": {
+                    "type": "string"
+                },
+                "transformations": {
+                    "type": "array",
+                    "items": [
+                        {
+                            "type": "object",
+                            "properties": {
+                                "environment": {
+                                    "type": "string"
+                                },
+                                "key": {
+                                    "type": "string"
+                                },
+                                "value": {
+                                    "type": [
+                                        "array",
+                                        "boolean",
+                                        "integer",
+                                        "null",
+                                        "number",
+                                        "object",
+                                        "string"
+                                    ]
+                                },
+                                "reference": {
+                                    "type": "object",
+                                    "properties": {
+                                        "keyVaultName": {
+                                            "type": "string"
+                                        },
+                                        "secretName": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "keyVaultName",
+                                        "secretName"
+                                    ]
+                                }
+                            },
+                            "oneOf": [
+                                {
+                                    "required": [
+                                        "value"
+                                    ]
+                                },
+                                {
+                                    "required": [
+                                        "reference"
+                                    ]
+                                }
+                            ],
+                            "required": [
+                                "environment",
+                                "key"
+                            ]
+                        }
+                    ]
+                }
+            },
+            "required": [
+                "configuration",
+                "transformations"
+            ]
+        }
+    ]
+}

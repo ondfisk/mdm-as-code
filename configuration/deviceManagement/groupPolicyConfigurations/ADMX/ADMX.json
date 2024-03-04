@@ -1,0 +1,60 @@
+{
+  "@odata.context": "https://graph.microsoft.com/beta/$metadata#deviceManagement/groupPolicyConfigurations/$entity",
+  "createdDateTime": "2020-12-01T11:40:09.9314122Z",
+  "displayName": "ADMX",
+  "description": "",
+  "roleScopeTagIds": [
+    "0"
+  ],
+  "id": "fed88cd3-c468-4019-9360-fff3dba8016a",
+  "lastModifiedDateTime": "2020-12-01T11:40:10.2126724Z",
+  "definitionValues": [
+    {
+      "id": "a06c8e45-edc6-4656-9d20-b30448932e85",
+      "enabled": true,
+      "definition@odata.bind": "https://graph.microsoft.com/beta/deviceManagement/groupPolicyDefinitions('8000b4e7-20fb-439f-b6c8-71c5e447a698')",
+      "presentationValues": []
+    },
+    {
+      "id": "efafaef5-d9d9-4e02-8c36-ca3b1b70c16b",
+      "enabled": true,
+      "definition@odata.bind": "https://graph.microsoft.com/beta/deviceManagement/groupPolicyDefinitions('ee2d734f-044d-4689-b610-769ce47eaa80')",
+      "presentationValues": []
+    }
+  ],
+  "assignments": [
+    {
+      "id": "fed88cd3-c468-4019-9360-fff3dba8016a_3d64c50e-1aaa-4597-b17f-a0f8ef6557ea",
+      "lastModifiedDateTime": "2020-12-01T11:40:10.7533957Z",
+      "target": {
+        "@odata.type": "#microsoft.graph.groupAssignmentTarget",
+        "deviceAndAppManagementAssignmentFilterId": null,
+        "deviceAndAppManagementAssignmentFilterType": "none",
+        "groupId": "3d64c50e-1aaa-4597-b17f-a0f8ef6557ea",
+        "groupDisplayName": "New Group"
+      }
+    },
+    {
+      "id": "fed88cd3-c468-4019-9360-fff3dba8016a_4dd8bd77-07ad-40e8-bc1e-68782e508d5a",
+      "lastModifiedDateTime": "2020-12-01T11:40:10.7533957Z",
+      "target": {
+        "@odata.type": "#microsoft.graph.groupAssignmentTarget",
+        "deviceAndAppManagementAssignmentFilterId": null,
+        "deviceAndAppManagementAssignmentFilterType": "none",
+        "groupId": "4dd8bd77-07ad-40e8-bc1e-68782e508d5a",
+        "groupDisplayName": "Dynamic User"
+      }
+    },
+    {
+      "id": "fed88cd3-c468-4019-9360-fff3dba8016a_6cd75dad-4fa7-47e1-b830-851df8f5d56a",
+      "lastModifiedDateTime": "2020-12-01T11:40:10.7533957Z",
+      "target": {
+        "@odata.type": "#microsoft.graph.groupAssignmentTarget",
+        "deviceAndAppManagementAssignmentFilterId": null,
+        "deviceAndAppManagementAssignmentFilterType": "none",
+        "groupId": "6cd75dad-4fa7-47e1-b830-851df8f5d56a",
+        "groupDisplayName": "Dynamic Device"
+      }
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+parameters:
+- name: environment
+  type: string
+- name: azureSubscription
+  type: string
+
+jobs:
+- deployment: ${{ format('Validate{0}', parameters.environment) }}
+  displayName: ${{ format('Validate - {0}', parameters.environment) }}
+  environment: ${{ parameters.environment }}
+  pool:
+    vmImage: $(vmImage)
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+          - task: AzureCLI@2
+            displayName: Validate Intune Configuration
+            inputs:
+              azureSubscription: ${{ parameters.azureSubscription }}
+              addSpnToEnvironment: true
+              scriptType: pscore
+              scriptLocation: inlineScript
+              workingDirectory: $(Pipeline.Workspace)/drop/scripts
+              failOnStandardError: true
+              inlineScript: |
+                Install-Module -Name Logging, MSAL.PS -Scope CurrentUser -AcceptLicense -SkipPublisherCheck -Force
+                Import-Module -Name "$(Pipeline.Workspace)/drop/scripts/Modules/Intune" -Force
+
+                $env:IntuneTenantId = $env:tenantId
+                $env:IntuneClientId = $env:servicePrincipalId
+                $env:IntuneClientSecret = $env:servicePrincipalKey
+
+                Import-IntuneGroup -InputFolder "$(Pipeline.Workspace)/drop/configuration/groups" `
+                  -WhatIf `
+                  -ErrorAction Stop
+
+                Sync-IntuneConfiguration -InputFolder "$(Pipeline.Workspace)/drop/configuration" `
+                  -TempFolder "$(Pipeline.Workspace)/drop/temp" `
+                  -WhatIf `
+                  -ErrorAction Stop

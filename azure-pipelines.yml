@@ -1,0 +1,80 @@
+trigger:
+  branches:
+    include:
+    - main
+
+variables:
+  vmImage: windows-latest
+
+stages:
+- stage: Build
+  displayName: Build and Test
+  jobs:
+  - job: Build
+    pool:
+      vmImage: $(vmImage)
+    steps:
+    - task: AzurePowerShell@5
+      displayName: Run Tests
+      inputs:
+        azureSubscription: 365DEV
+        ScriptType: InlineScript
+        workingDirectory: $(Build.SourcesDirectory)
+        Inline: |
+          Install-Module -Name MSAL.PS, Logging, Pester, PSScriptAnalyzer -Scope CurrentUser -AcceptLicense -SkipPublisherCheck -Force
+          Invoke-Pester -CI
+        azurePowerShellVersion: LatestVersion
+        pwsh: true
+    - task: PublishTestResults@2
+      displayName: Publish Test Results
+      inputs:
+        testResultsFormat: NUnit
+        testResultsFiles: '**/testResults.xml'
+        failTaskOnFailedTests: true
+    - task: CopyFiles@2
+      displayName: Copy Files
+      inputs:
+        Contents: |
+          configuration/**
+          environments/**
+          scripts/**
+          templates/**
+        targetFolder: $(Build.ArtifactStagingDirectory)
+    - task: PublishPipelineArtifact@1
+      displayName: Publish Pipeline Artifact
+      inputs:
+        artifactName: drop
+        targetPath: $(Build.ArtifactStagingDirectory)
+- stage: DeployTest
+  displayName: Deploy test environment
+  dependsOn: Build
+  condition: and(succeeded(), or(eq(variables['Build.Reason'], 'PullRequest'), eq(variables['Build.SourceBranch'], 'refs/heads/main')))
+  variables:
+  - template: environments/Test/variables.yml
+  jobs:
+  - template: templates/deploy.yml
+    parameters:
+      environment: Test
+      azureSubscription: 365Test
+- stage: Validate
+  displayName: Validate production environment
+  dependsOn: Build
+  condition: and(succeeded(), or(eq(variables['Build.Reason'], 'PullRequest'), eq(variables['Build.SourceBranch'], 'refs/heads/main')))
+  variables:
+  - template: environments/Production/variables.yml
+  jobs:
+  - template: templates/validate.yml
+    parameters:
+      environment: Production
+      azureSubscription: 365PROD
+- stage: DeployProd
+  displayName: Deploy production environment
+  dependsOn: Validate
+  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+  variables:
+  - template: environments/Production/variables.yml
+  jobs:
+  - template: templates/deploy.yml
+    parameters:
+      environment: Production
+      azureSubscription: 365PROD

@@ -1,0 +1,57 @@
+parameters:
+- name: environment
+  type: string
+- name: azureSubscription
+  type: string
+
+jobs:
+- deployment: ${{ format('Deploy{0}', parameters.environment) }}
+  displayName: ${{ format('Deploy - {0}', parameters.environment) }}
+  environment: ${{ parameters.environment }}
+  pool:
+    vmImage: $(vmImage)
+  strategy:
+    runOnce:
+      deploy:
+        steps:
+          - task: AzureResourceGroupDeployment@2
+            displayName: Deploy template
+            inputs:
+              deploymentMode: Incremental
+              azureSubscription: ${{ parameters.azureSubscription }}
+              location: $(location)
+              resourceGroupName: $(resourceGroupName)
+              csmFile: $(Pipeline.Workspace)/drop/templates/deploy.json
+              overrideParameters: -logAnalyticsWorkspaceName $(logAnalyticsWorkspaceName) -keyVaultName $(keyVaultName) -keyVaultAdminsObjectId $(keyVaultAdminsObjectId) -serviceConnectionObjectId $(serviceConnectionObjectId)
+          - task: AzureCLI@2
+            displayName: Sync Intune Configuration
+            inputs:
+              azureSubscription: ${{ parameters.azureSubscription }}
+              addSpnToEnvironment: true
+              scriptType: pscore
+              scriptLocation: inlineScript
+              workingDirectory: $(Pipeline.Workspace)/drop/scripts
+              failOnStandardError: true
+              inlineScript: |
+                Install-Module -Name Logging, MSAL.PS -Scope CurrentUser -AcceptLicense -SkipPublisherCheck -Force
+                Import-Module -Name "$(Pipeline.Workspace)/drop/scripts/Modules/Intune" -Force
+
+                $customerId = (az monitor log-analytics workspace show --resource-group $(resourceGroupName) --workspace-name $(logAnalyticsWorkspaceName) --query customerId --output tsv)
+                $sharedKey = (az monitor log-analytics workspace get-shared-keys --resource-group $(resourceGroupName) --workspace-name $(logAnalyticsWorkspaceName) --query primarySharedKey --output tsv)
+                Add-LoggingTarget -Name AzureLogAnalytics -Configuration @{
+                    WorkspaceId = $customerId
+                    SharedKey = $sharedKey
+                }
+                Add-LoggingTarget -Name Console
+
+                $env:IntuneTenantId = $env:tenantId
+                $env:IntuneClientId = $env:servicePrincipalId
+                $env:IntuneClientSecret = $env:servicePrincipalKey
+
+                Import-IntuneGroup -InputFolder "$(Pipeline.Workspace)/drop/configuration/groups" -ErrorAction Stop
+
+                Sync-IntuneConfiguration -InputFolder "$(Pipeline.Workspace)/drop/configuration" `
+                  -TempFolder "$(Pipeline.Workspace)/drop/temp" `
+                  -Environment "${{ parameters.environment }}" `
+                  -Verbose `
+                  -ErrorAction Stop

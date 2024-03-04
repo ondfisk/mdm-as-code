@@ -1,0 +1,13 @@
+variables:
+  environment: Production
+  azureSubscription: 365PROD
+  tenantName: welcome365prod.onmicrosoft.com
+  tenantId: fa822251-bb92-46df-a8fc-219524ba9fbf
+  subscriptionId: be148c13-5f8e-414f-a843-a2e1dd444d3c
+  clientId: 2ffe8fcd-4837-49a0-978b-0bf3bf87f2b8
+  serviceConnectionObjectId: 4412e8e6-ccd3-47fb-8dbb-dc6d1fe2f440
+  keyVaultAdminsObjectId: ad8faa8a-1da9-4fc4-afc6-bffc86eb37df
+  location: West Europe
+  resourceGroupName: mdm-as-code
+  logAnalyticsWorkspaceName: mdm-as-code
+  keyVaultName: mdm-as-code

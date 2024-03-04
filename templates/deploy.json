@@ -1,0 +1,129 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "logAnalyticsWorkspaceName": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "keyVaultName": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "keyVaultAdminsObjectId": {
+      "type": "string",
+      "defaultValue": ""
+    },
+    "serviceConnectionObjectId": {
+      "type": "string",
+      "defaultValue": ""
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2020-03-01-preview",
+      "name": "[parameters('logAnalyticsWorkspaceName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "features": {
+          "searchVersion": 1
+        },
+        "sku": {
+          "name": "PerGB2018"
+        },
+        "retentionInDays": 365
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults",
+      "name": "[parameters('keyVaultName')]",
+      "apiVersion": "2019-09-01",
+      "condition": "[not(empty(parameters('keyVaultName')))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "enabledForDeployment": true,
+        "enabledForDiskEncryption": true,
+        "enabledForTemplateDeployment": true,
+        "tenantId": "[subscription().tenantId]",
+        "accessPolicies": [
+          {
+            "objectId": "[parameters('keyVaultAdminsObjectId')]",
+            "tenantId": "[subscription().tenantId]",
+            "permissions": {
+              "certificates": [
+                "All"
+              ],
+              "keys": [
+                "All"
+              ],
+              "secrets": [
+                "All"
+              ],
+              "storage": [
+                "All"
+              ]
+            }
+          },
+          {
+            "objectId": "[parameters('serviceConnectionObjectId')]",
+            "tenantId": "[subscription().tenantId]",
+            "permissions": {
+              "certificates": [
+                "Get",
+                "List"
+              ]
+            }
+          }
+        ],
+        "sku": {
+          "name": "Standard",
+          "family": "A"
+        },
+        "networkAcls": {
+          "value": {
+            "defaultAction": "Allow",
+            "bypass": "AzureServices"
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.KeyVault/vaults/providers/diagnosticSettings",
+      "name": "[concat(parameters('keyVaultName'), '/', 'Microsoft.Insights/logging')]",
+      "apiVersion": "2017-05-01-preview",
+      "dependsOn": [
+        "[resourceId('Microsoft.KeyVault/vaults', parameters('keyVaultName'))]",
+        "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]"
+      ],
+      "condition": "[and(not(empty(parameters('logAnalyticsWorkspaceName'))), not(empty(parameters('keyVaultName'))))]",
+      "properties": {
+        "workspaceId": "[resourceId('Microsoft.OperationalInsights/workspaces', parameters('logAnalyticsWorkspaceName'))]",
+        "metrics": [
+          {
+            "category": "AllMetrics",
+            "enabled": true,
+            "retentionPolicy": {
+              "enabled": false,
+              "days": 365
+            }
+          }
+        ],
+        "logs": [
+          {
+            "category": "AuditEvent",
+            "enabled": true,
+            "retentionPolicy": {
+              "enabled": false,
+              "days": 365
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

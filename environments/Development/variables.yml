@@ -1,0 +1,13 @@
+variables:
+  environment: Development
+  azureSubscription: 365DEV
+  tenantName: welcome365dev.onmicrosoft.com
+  tenantId: b231583b-d29d-4f16-bb2a-1f8d221eaf4d
+  subscriptionId: 676dc9ba-fccf-454d-8222-615d2f96640f
+  clientId: 97e03613-9e87-4093-aad8-0093302b69fc
+  serviceConnectionObjectId: 67f7c4a3-036f-4546-9dd8-f637a5f3b73a
+  keyVaultAdminsObjectId: 16b030ea-7f33-49e9-8944-2438ca50aa08
+  location: West Europe
+  resourceGroupName: mdm-as-code-dev
+  logAnalyticsWorkspaceName: mdm-as-code-dev
+  keyVaultName: mdm-as-code-dev
